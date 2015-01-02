@@ -15,6 +15,8 @@ Additional Stories:
 
 * Rounding option for tip amount
 * Custom keyboard for bill amount
+* Bill amount and tip percentages saved in NSUserDefaults
+* Clear/reset buttons
 * Unit tests for main ViewController
 
 ![walkthrough](https://raw.githubusercontent.com/shubik22/tipcalculator/master/tippr.gif)
