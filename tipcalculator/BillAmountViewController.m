@@ -10,9 +10,20 @@
 
 @interface BillAmountViewController ()
 @property (weak, nonatomic) IBOutlet UILabel *billAmountLabel;
-@property (weak, nonatomic) IBOutlet UIButton *numericButtons;
+@property (weak, nonatomic) IBOutlet UIButton *oneNumberButton;
+@property (weak, nonatomic) IBOutlet UIButton *twoNumberButton;
+@property (weak, nonatomic) IBOutlet UIButton *threeNumberButton;
+@property (weak, nonatomic) IBOutlet UIButton *fourNumberButton;
+@property (weak, nonatomic) IBOutlet UIButton *fiveNumberButton;
+@property (weak, nonatomic) IBOutlet UIButton *sixNumberButton;
+@property (weak, nonatomic) IBOutlet UIButton *sevenNumberButton;
+@property (weak, nonatomic) IBOutlet UIButton *eightNumberButton;
+@property (weak, nonatomic) IBOutlet UIButton *nineNumberButton;
+@property (weak, nonatomic) IBOutlet UIButton *zeroNumberButton;
+
 @property (weak, nonatomic) IBOutlet UIButton *deleteButton;
-@property (nonatomic) NSDecimalNumber *billAmount;
+@property (weak, nonatomic) IBOutlet UIButton *doneButton;
+@property (nonatomic, retain) NSDecimalNumber *billAmount;
 
 @end
 
@@ -22,14 +33,15 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        self.billAmount = [NSDecimalNumber zero];
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        NSNumber *savedBillAmount = [defaults objectForKey:@"billAmount"];
+        self.billAmount = [NSDecimalNumber decimalNumberWithDecimal:[savedBillAmount decimalValue]];
     }
     return self;
 }
 
-- (IBAction)numericButtonClicked:(id)sender {
-    UIButton *button = (UIButton *)sender;
-    [self updateBillAmount:[button currentTitle]];
+- (IBAction)numericButtonClicked:(UIButton *)sender {
+    [self updateBillAmount:[sender currentTitle]];
     [self updateBillAmountLabel];
 }
 
@@ -41,11 +53,13 @@
 - (void)updateBillAmount:(NSString*)newDigit {
     NSDecimalNumber *newDigitAsCents = [[NSDecimalNumber decimalNumberWithString:newDigit] decimalNumberByMultiplyingByPowerOf10:-2];
     self.billAmount = [[self.billAmount decimalNumberByMultiplyingByPowerOf10:1] decimalNumberByAdding:newDigitAsCents];
+    [self saveBillAmount];
 }
 
 - (void)deleteBillAmountDigit {
     NSDecimalNumberHandler *numberHandler = [NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundDown scale:2 raiseOnExactness:NO raiseOnOverflow:NO raiseOnUnderflow:NO raiseOnDivideByZero:NO];
     self.billAmount = [self.billAmount decimalNumberByMultiplyingByPowerOf10:-1 withBehavior:numberHandler];
+    [self saveBillAmount];
 }
 
 - (void)updateBillAmountLabel {
@@ -54,9 +68,20 @@
     self.billAmountLabel.text = [nf stringFromNumber:self.billAmount];
 }
 
+- (void)saveBillAmount {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:self.billAmount forKey:@"billAmount"];
+    [defaults synchronize];
+}
+
+- (IBAction)doneButtonClicked:(id)sender {
+    [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [self.view setBackgroundColor:[UIColor clearColor]];
     [self updateBillAmountLabel];
 }
 
