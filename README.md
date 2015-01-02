@@ -1,5 +1,4 @@
 # Tippr
-=============
 
 This is a basic tipping calculator application I built as part of my application to Codepath.  It calculates a tip amount and total bill amount (including tip) given a base bill amount and tip percentage.  It also allows you to set custom tip percentage defaults or round your tip amounts.  Given more time, I would add animations between views, better incorporate the custom keypad into the main view, split the bill amount between multiple people, finish adding unit tests, and add integration tests.
 
@@ -18,4 +17,4 @@ Additional Stories:
 * Custom keyboard for bill amount
 * Unit tests for main ViewController
 
-[walkthrough](https://raw.githubusercontent.com/shubik22/tipcalculator/master/tippr.gif)
+![walkthrough](https://raw.githubusercontent.com/shubik22/tipcalculator/master/tippr.gif)
