@@ -8,20 +8,24 @@
 
 #import "AppDelegate.h"
 #import "TipViewController.h"
+#import "BillAmountViewController.h"
+#import "SettingsViewController.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
     
     TipViewController *tvc = [[TipViewController alloc] init];
     UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:(tvc)];
+
+    NSURL *defaultPrefsFile = [[NSBundle mainBundle] URLForResource:@"DefaultTipCalculatorValues" withExtension:@"plist"];
+    NSDictionary *defaultPrefs = [NSDictionary dictionaryWithContentsOfURL:defaultPrefsFile];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:defaultPrefs];
     
     self.window.rootViewController = nvc;
-    
-    self.window.backgroundColor = [UIColor whiteColor];
+    [self.window setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"BackgroundImage.png"]]];
     [self.window makeKeyAndVisible];
     return YES;
 }
@@ -52,5 +56,4 @@
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
-
 @end
