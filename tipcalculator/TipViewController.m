@@ -109,6 +109,6 @@
 }
 
 - (void)onSettingsButton {
-    [self.navigationController pushViewController:[[SettingsViewController alloc] init] animated:YES];
+    [self.navigationController pushViewController:[[SettingsViewController alloc] init] animated:NO];
 }
 @end
