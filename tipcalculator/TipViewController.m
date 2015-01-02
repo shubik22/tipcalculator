@@ -7,16 +7,12 @@
 //
 
 #import "TipViewController.h"
+#import "SettingsViewController.h"
+#import "BillAmountViewController.h"
 
 @interface TipViewController ()
-@property (weak, nonatomic) IBOutlet UITextField *billTextField;
-@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
-@property (weak, nonatomic) IBOutlet UILabel *totalLabel;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *tipControl;
-@property (nonatomic) NSDecimalNumber *billAmount;
-
-- (IBAction)onTap:(id)sender;
-- (void)updateVales;
+@property (weak, nonatomic) IBOutlet UIButton *editBillAmountButton;
+@property (weak, nonatomic) IBOutlet UIButton *resetButton;
 
 @end
 
@@ -26,7 +22,7 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        self.title = @"Tip Calculator";
+        self.title = @"Tippr";
     }
     return self;
 }
@@ -34,8 +30,18 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self updateBillAmountField];
-    [self updateVales];
+    [self.view setBackgroundColor:[UIColor clearColor]];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Settings" style:UIBarButtonItemStylePlain target:self action:@selector(onSettingsButton)];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self loadValues];
+    [self updateLabels];
+}
+
+- (IBAction)editTipAmount:(id)sender {
+    [self.navigationController pushViewController:[[SettingsViewController alloc] init] animated:YES];
 }
 
 - (void)didReceiveMemoryWarning
@@ -44,35 +50,65 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (IBAction)onTap:(id)sender {
-    [self.view endEditing:(YES)];
-    [self updateVales];
+- (void)loadValues {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
+    self.billAmount = [NSDecimalNumber decimalNumberWithDecimal:[[defaults objectForKey:@"billAmount"] decimalValue]];
+    
+    NSDecimalNumber *averageTipAmount = [NSDecimalNumber decimalNumberWithDecimal:[[defaults objectForKey:@"averageTipAmount"] decimalValue]];
+    NSDecimalNumber *goodTipAmount = [NSDecimalNumber decimalNumberWithDecimal:[[defaults objectForKey:@"goodTipAmount"] decimalValue]];
+    NSDecimalNumber *excellentTipAmount = [NSDecimalNumber decimalNumberWithDecimal:[[defaults objectForKey:@"excellentTipAmount"] decimalValue]];
+    
+    self.tipPercentageAmounts = @[averageTipAmount, goodTipAmount, excellentTipAmount];
 }
 
-- (void)updateBillAmountField {
-    if (!self.billAmount) {
-        self.billAmount = [NSDecimalNumber zero];
+- (void)updateLabels {
+    NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
+    [nf setNumberStyle:NSNumberFormatterCurrencyStyle];
+    
+    NSDecimalNumber *tipPercentage = self.tipPercentageAmounts[self.tipControl.selectedSegmentIndex];
+    NSDecimalNumber *tipAmount;
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"roundTipAmount"]) {
+        NSDecimalNumberHandler *behavior = [[NSDecimalNumberHandler alloc] initWithRoundingMode:NSRoundUp scale:0 raiseOnExactness:NO raiseOnOverflow:NO raiseOnUnderflow:NO raiseOnDivideByZero:NO];
+        tipAmount =  [self.billAmount decimalNumberByMultiplyingBy:tipPercentage withBehavior:behavior];
+    } else {
+        tipAmount =  [self.billAmount decimalNumberByMultiplyingBy:tipPercentage];
     }
     
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+    NSDecimalNumber *totalAmount = [tipAmount decimalNumberByAdding:self.billAmount];
+
+    self.billAmountLabel.text = [nf stringFromNumber:self.billAmount];
+    self.tipLabel.text = [nf stringFromNumber:tipAmount];
+    self.totalLabel.text = [nf stringFromNumber:totalAmount];
     
-    self.billTextField.text = [numberFormatter stringFromNumber:self.billAmount];
+    [nf setNumberStyle:NSNumberFormatterPercentStyle];
+    for (int i = 0; i <= 2; i++) {
+        [self.tipControl setTitle:[nf stringFromNumber:self.tipPercentageAmounts[i]] forSegmentAtIndex:i];
+    }
 }
 
-- (void)updateVales {
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+- (IBAction)tipPercentageChanged:(id)sender {
+    [self updateLabels];
+}
+
+- (IBAction)resetButtonClicked:(id)sender {
+    self.billAmount = [NSDecimalNumber zero];
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:self.billAmount forKey:@"billAmount"];
+    [defaults synchronize];
     
-    NSArray *tipValues = @[[[NSDecimalNumber alloc] initWithDouble:0.15],
-                           [[NSDecimalNumber alloc] initWithDouble:0.20],
-                           [[NSDecimalNumber alloc] initWithDouble:0.25]];
+    [self.tipControl setSelectedSegmentIndex:0];
     
-    NSDecimalNumber *tipPercentage = tipValues[self.tipControl.selectedSegmentIndex];
-    NSDecimalNumber *tipAmount =  [self.billAmount decimalNumberByMultiplyingBy:tipPercentage];
-    NSDecimalNumber *totalAmount = [tipAmount decimalNumberByAdding:self.billAmount];
-    
-    self.tipLabel.text = [numberFormatter stringFromNumber:tipAmount];
-    self.totalLabel.text = [numberFormatter stringFromNumber:totalAmount];
+    [self updateLabels];
+}
+
+- (IBAction)editBillAmount:(id)sender {
+    [self.navigationController pushViewController:[[BillAmountViewController alloc] init] animated:NO];
+}
+
+- (void)onSettingsButton {
+    [self.navigationController pushViewController:[[SettingsViewController alloc] init] animated:YES];
 }
 @end

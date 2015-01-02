@@ -10,4 +10,13 @@
 
 @interface TipViewController : UIViewController
 
+@property (weak, nonatomic) IBOutlet UILabel *billAmountLabel;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *totalLabel;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *tipControl;
+@property (nonatomic) NSDecimalNumber *billAmount;
+@property (nonatomic) NSArray *tipPercentageAmounts;
+- (void)loadValues;
+- (void)updateLabels;
+
 @end
